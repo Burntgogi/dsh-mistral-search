@@ -17,7 +17,9 @@ This is a community plugin, not an official DeepSeek or Mistral project. Mistral
 dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.0
 ```
 
-Use `--profile desktop` for the desktop app. Restart the Harness afterwards.
+Restart the Harness afterwards.
+
+In the desktop app, the command line cannot change the profile. Open **Plugins → Add plugin** and enter `https://github.com/Burntgogi/dsh-mistral-search#v0.1.0`.
 
 If no key is stored, the Harness hides `web_search` from the model rather than offering a tool that always fails.
 
@@ -90,6 +92,8 @@ One `web_search` call can hold up to 4 queries, and each query counts separately
 ```bash
 dsh plugin --profile web remove dsh-mistral-search
 ```
+
+In the desktop app, remove it from the **Plugins** screen.
 
 ## Development
 

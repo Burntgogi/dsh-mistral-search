@@ -17,7 +17,9 @@ DeepSeek이나 Mistral의 공식 프로젝트가 아닌 커뮤니티 플러그�
 dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.0
 ```
 
-설치판은 `--profile desktop`을 쓰세요. 설치 후 Harness를 다시 시작합니다.
+설치 후 Harness를 다시 시작합니다.
+
+설치판은 명령줄로 프로필을 바꿀 수 없습니다. **플러그인 → 플러그인 추가**를 열고 `https://github.com/Burntgogi/dsh-mistral-search#v0.1.0`을 입력하세요.
 
 키가 저장되어 있지 않으면 항상 실패할 도구를 내놓는 대신 Harness가 모델에게서 `web_search`를 숨깁니다.
 
@@ -90,6 +92,8 @@ Mistral 웹 검색은 무료가 아닙니다. Mistral 문서에 따르면 API �
 ```bash
 dsh plugin --profile web remove dsh-mistral-search
 ```
+
+설치판은 **플러그인** 화면에서 제거합니다.
 
 ## 개발
 
