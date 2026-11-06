@@ -79,6 +79,70 @@ test("a block keeps results from another execution and still says so", async () 
   assert.match(result.content, /safety filter blocked/);
 });
 
+test("mixed failures keep both warnings and successful results in every execution order", async () => {
+  const generic = execution("Error executing tool web_search: upstream unavailable");
+  const blocked = execution(BLOCK);
+  const success = execution({ a: item("https://a.example/", 0) });
+  const orders = [
+    [generic, blocked, success], [generic, success, blocked],
+    [blocked, generic, success], [blocked, success, generic],
+    [success, generic, blocked], [success, blocked, generic],
+  ];
+  let expected;
+  for (const outputs of orders) {
+    const { provider, calls } = replies(ok(outputs));
+    const result = await provider.search({ query: "q" });
+    assert.equal(result.sources.length, 1);
+    assert.match(result.content, /safety filter blocked/);
+    assert.match(result.content, /executions failed.*incomplete/);
+    assert.equal(calls.length, 1);
+    expected ??= result;
+    assert.deepEqual(result, expected);
+  }
+});
+
+test("a generic execution failure warns alongside successful results in either order", async () => {
+  const generic = execution("Error executing tool web_search: upstream unavailable");
+  const success = execution({ a: item("https://a.example/", 0) });
+  for (const outputs of [[generic, success], [success, generic]]) {
+    const { provider, calls } = replies(ok(outputs));
+    const result = await provider.search({ query: "q" });
+    assert.equal(result.sources.length, 1);
+    assert.match(result.content, /executions failed.*incomplete/);
+    assert.doesNotMatch(result.content, /safety filter/);
+    assert.equal(calls.length, 1);
+  }
+});
+
+test("all failed executions still report any filter block without retrying", async () => {
+  const generic = execution("Error executing tool web_search: upstream unavailable");
+  const blocked = execution(BLOCK);
+  for (const outputs of [[generic, blocked], [blocked, generic]]) {
+    const { provider, calls } = replies(ok(outputs));
+    const result = await provider.search({ query: "q" });
+    assert.deepEqual(result.sources, []);
+    assert.match(result.content, /safety filter blocked/);
+    assert.match(result.content, /executions failed/);
+    assert.equal(calls.length, 1);
+  }
+});
+
+test("all generic execution failures are retried once and reported together", async () => {
+  const first = execution(`Error executing tool web_search: upstream one rejected ${KEY}`);
+  const second = execution("Error executing tool web_search: upstream two unavailable");
+  for (const outputs of [[first, second], [second, first]]) {
+    const { provider, calls } = replies(ok(outputs), ok(outputs));
+    await assert.rejects(provider.search({ query: "q" }), error => {
+      assert.equal(error.code, "WEB_PROVIDER_ERROR");
+      assert.match(error.message, /upstream one/);
+      assert.match(error.message, /upstream two/);
+      assert.equal(error.message.includes(KEY), false);
+      return true;
+    });
+    assert.equal(calls.length, 2);
+  }
+});
+
 test("a readable empty result beside an unreadable one is not conclusive", async () => {
   const { provider } = replies(ok([execution({}), execution("not json")]));
   await hasCode(provider.search({ query: "q" }), "WEB_PROVIDER_ERROR");
@@ -185,4 +249,23 @@ test("the attempt timeout ends a stuck request and it is tried once more", async
     clearInterval(keepAlive);
   }
   assert.equal(requests, 2);
+});
+
+test("default attempts and the longest retry wait fit the host's 30-second budget", async t => {
+  const timeouts = [];
+  const waits = [];
+  const calls = [];
+  t.mock.method(AbortSignal, "timeout", ms => {
+    timeouts.push(ms);
+    return new AbortController().signal;
+  });
+  const provider = build(async (url, init) => {
+    calls.push(init);
+    return fail(503, {}, { "retry-after": "5" });
+  }, { wait: async ms => { waits.push(ms); } });
+  await hasCode(provider.search({ query: "q" }), "WEB_PROVIDER_ERROR");
+  assert.equal(calls.length, 2);
+  assert.deepEqual(timeouts, [12_000, 12_000]);
+  assert.deepEqual(waits, [5_000]);
+  assert.equal([...timeouts, ...waits].reduce((total, ms) => total + ms, 0), 29_000);
 });

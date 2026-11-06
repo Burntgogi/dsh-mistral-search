@@ -73,9 +73,10 @@ One `web_search` call can hold up to 4 queries, and each query counts separately
 ## Behavior
 
 - A rate limit, server error, network failure, or a turn where the model skipped the tool is retried once. A wait longer than 5 seconds is not retried.
-- Each attempt is limited to 20 seconds. Cancelling stops immediately.
+- Each attempt is limited to 12 seconds. Two attempts and the longest retry wait total at most 29 seconds, within the Harness's default 30-second tool limit. Cancelling stops immediately.
 - A rejected key or a bad request fails at once with Mistral's reason.
 - Mistral can report that a search's tool response was blocked, with the reason `prompt injection pattern detected`. The plugin tells the model the search was blocked, not that the web has no results, and other queries in the same call still run. See [Limits](#limits).
+- When a response contains several search executions, every failure is checked. A filter block is always reported, and successful results are kept with a warning if another execution failed.
 - If Mistral's model searched with different terms than the ones requested, the results are kept and the model is told which terms were used. In the sample measured, the terms always matched.
 - An empty result reads as "no results". A response the plugin cannot understand reads as an error, so a format change at Mistral is not mistaken for an empty search.
 - The raw results come from `info.result`, a field Mistral does not document. If it goes away, the plugin falls back to citation chunks, and otherwise reports the error above.
