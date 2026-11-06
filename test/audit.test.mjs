@@ -269,3 +269,54 @@ test("default attempts and the longest retry wait fit the host's 30-second budge
   assert.deepEqual(waits, [5_000]);
   assert.equal([...timeouts, ...waits].reduce((total, ms) => total + ms, 0), 29_000);
 });
+
+test("a baseURL the key must not reach fails before the key is read or a request is sent", async () => {
+  const unsafe = [
+    "http://api.mistral.ai/v1",
+    "http://127.0.0.1.evil.example/v1",
+    "http://localhost.evil.example/v1",
+    "ftp://api.mistral.ai/v1",
+    "https://user:secret@api.mistral.ai/v1",
+    "not a url",
+    "",
+  ];
+  for (const baseURL of unsafe) {
+    let requests = 0;
+    let reads = 0;
+    const provider = build(async () => {
+      requests++;
+      return ok([]);
+    }, {
+      options: () => ({ ...DEFAULTS, baseURL }),
+      credentials: { configured: async () => true, value: async () => { reads++; return KEY; } },
+    });
+    await assert.rejects(provider.search({ query: "q" }), error => {
+      assert.equal(error.code, "WEB_PROVIDER_ERROR");
+      assert.match(error.message, /must use HTTPS/);
+      assert.equal(error.message.includes("secret"), false);
+      return true;
+    });
+    assert.equal(requests, 0, baseURL);
+    assert.equal(reads, 0, baseURL);
+  }
+});
+
+test("HTTPS and local HTTP addresses are accepted", async () => {
+  const safe = [
+    "https://api.mistral.ai/v1",
+    "https://proxy.example:8443/mistral/",
+    "http://localhost:8080/v1",
+    "http://127.0.0.1:18923/v1",
+    "http://[::1]:8080/v1",
+  ];
+  for (const baseURL of safe) {
+    const urls = [];
+    const provider = build(async url => {
+      urls.push(url);
+      return ok([execution({ a: item("https://a.example/", 0) })]);
+    }, { options: () => ({ ...DEFAULTS, baseURL }) });
+    const result = await provider.search({ query: "q" });
+    assert.equal(result.sources.length, 1, baseURL);
+    assert.equal(urls[0], `${baseURL.replace(/\/+$/, "")}/conversations`);
+  }
+});

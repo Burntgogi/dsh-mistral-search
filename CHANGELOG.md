@@ -7,7 +7,8 @@ First public version.
 - Checks every search execution failure so an earlier failure cannot hide a later safety-filter block
 - Keeps successful results with an incomplete-results warning when another search execution fails
 - Limits each attempt to 12 seconds, keeping two attempts and the longest retry wait within the Harness's default 30-second tool budget
-- Rewrites the README around a diagram of how a search runs
+- Refuses a `baseURL` that is not HTTPS, except HTTP on localhost, before reading the key
+- Rewrites the README around a diagram of how a search runs, and adds a security section
 
 ## 0.1.0
 

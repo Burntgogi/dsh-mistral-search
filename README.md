@@ -6,7 +6,8 @@
 </p>
 
 <p align="center">
-  This is a community plugin, not an official DeepSeek or Mistral project.
+  This is a community plugin, not an official DeepSeek or Mistral project.<br>
+  Turning on web search carries a security risk. Read <a href="#security">Security</a> first.
 </p>
 
 <p align="center">
@@ -15,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="#how-it-works">How it works</a> · <a href="#install">Install</a> · <a href="#cost">Cost</a> · <a href="#settings">Settings</a> ·
+  <a href="#how-it-works">How it works</a> · <a href="#security">Security</a> · <a href="#install">Install</a> · <a href="#cost">Cost</a> · <a href="#settings">Settings</a> ·
   <a href="#limits">Limits</a> · <a href="#update-and-remove">Update and remove</a> · <a href="#what-was-tested">What was tested</a> · <a href="README.ko.md">한국어</a>
 </p>
 
@@ -28,6 +29,15 @@
 Mistral documents no search API that works without a model. So the plugin sends one short conversation per query and takes the results that the built-in web search tool found.
 
 Your search terms go to Mistral. `store: false` asks Mistral not to keep the conversation. Responses measured in November 2026 label their results with `source: brave`, which suggests Mistral passes queries on to Brave Search. Mistral does not document this.
+
+## Security
+
+Turning on web search always carries a security risk. Search results come from web pages that anyone can write, and a page can hold instructions that trick the model (prompt injection). Mistral's safety filter or the search engine may remove some of this, but you cannot rely on them to remove all of it.
+
+- The risk is highest in a full access session. A tricked model can run commands without approval and read anything your account can read, including the Mistral key and other credentials. Use a permission that asks for approval, such as workspace write. The risk does not go away under that permission.
+- The model can put your work into search terms, and search terms go to Mistral. Turn the plugin off for sensitive work.
+- A tricked model can repeat searches and use up your allowance. The plugin has no limit on the number of searches. If pay-as-you-go is on, this can reach your prepaid credits.
+- If you think the key has leaked, issue a new one at Mistral.
 
 ## Install
 
@@ -74,7 +84,7 @@ All settings are optional. Set them in your profile's `cordis.patch.yml`.
 | --- | --- |
 | `model` | The model that runs the search |
 | `apiKeyEnv` | The name that holds the key. Never write the key itself |
-| `baseURL` | The Mistral API address |
+| `baseURL` | The Mistral API address. The key is sent to it, so only HTTPS is accepted. HTTP is allowed on localhost only |
 
 Some models do not accept the built-in web search. Measured in November 2026 with a Vibe key, `mistral-small-latest` worked, and `deepseek-v4-1-flash-1017`, `ministral-3b-latest` and `ministral-14b-latest` were refused with HTTP 400 (code 3004). Model cards can differ from this.
 
