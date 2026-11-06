@@ -74,6 +74,7 @@ One `web_search` call can hold up to 4 queries, and each query counts separately
 - A rate limit, server error, network failure, or a turn where the model skipped the tool is retried once. A wait longer than 5 seconds is not retried.
 - Each attempt is limited to 20 seconds. Cancelling stops immediately.
 - A rejected key or a bad request fails at once with Mistral's reason.
+- Mistral's safety filter can block a search with `prompt injection pattern detected`. The plugin tells the model the search was blocked, not that the web has no results, and other queries in the same call still run. See [Limits](#limits).
 - An empty result reads as "no results". A response the plugin cannot understand reads as an error, so a format change at Mistral is not mistaken for an empty search.
 - The raw results come from `info.result`, a field Mistral does not document. If it goes away, the plugin falls back to citation chunks, and otherwise reports the error above.
 
@@ -82,6 +83,7 @@ One `web_search` call can hold up to 4 queries, and each query counts separately
 - The plugin pins itself as `searchProvider`. If you disable it but keep the pin, searches fail with `WEB_PROVIDER_CONFIGURED_MISSING`. Removing the plugin removes the pin.
 - The Harness web search settings switch overwrites `searchProvider`. Set it back to `dsh-mistral-search` if you use the switch.
 - This plugin has only one engine and no automatic fallback.
+- Mistral's filter inspects the search results, and it also blocks legitimate topics. In November 2026, `prompt injection attack examples`, `OWASP LLM01 prompt injection mitigation` and `ignore previous instructions meme origin` were all blocked, so this plugin is a poor fit for security research on that subject. Ordinary searches in the same tests went through. How often other searches are blocked was not measured.
 
 ## Remove
 

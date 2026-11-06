@@ -94,6 +94,28 @@ test("an unreadable result is an error, not an empty list", async () => {
   }
 });
 
+test("a blocked search says so instead of reading as no results, and is not retried", async () => {
+  const raw = "Error executing tool web_search: Tool response from '019df75b-9179-7745-ba07-9a43052c1344' was blocked: prompt injection pattern detected.";
+  const { provider: p, calls } = provider([ok([execution(raw), { type: "message.output", content: "HELLO" }])]);
+  const result = await p.search({ query: "q" });
+  assert.deepEqual(result.sources, []);
+  assert.match(result.content, /safety filter blocked/);
+  assert.match(result.content, /does not mean the web has no results/);
+  assert.equal(result.truncated, false);
+  assert.equal(calls.length, 1);
+});
+
+test("another tool failure is retried, then reported with ids masked", async () => {
+  const raw = "Error executing tool web_search: upstream 019df75b-9179-7745-ba07-9a43052c1344 unavailable";
+  const { provider: p, calls } = provider([ok([execution(raw)]), ok([execution(raw)])]);
+  await assert.rejects(p.search({ query: "q" }), error => {
+    assert.equal(error.code, "WEB_PROVIDER_ERROR");
+    assert.match(error.message, /search tool failed: .*upstream \[redacted\] unavailable/);
+    return true;
+  });
+  assert.equal(calls.length, 2);
+});
+
 test("falls back to citation chunks when raw results are unreadable", () => {
   const sources = parseOutputs([execution("not json"), { type: "message.output", content: [{ type: "tool_reference", url: "https://c.example/", title: "c" }] }]);
   assert.deepEqual(sources, [{ url: "https://c.example/", title: "c" }]);
