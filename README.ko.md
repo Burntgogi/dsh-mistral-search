@@ -55,7 +55,7 @@ dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.1
 
 ### 데스크톱판
 
-앱의 **플러그인 → 플러그인 추가**에 아래 주소를 넣으세요. 데스크톱 프로필은 앱이 관리하므로 `dsh plugin --profile desktop` 명령은 거부됩니다.
+앱의 **플러그인 → 플러그인 추가**에 아래 주소를 넣고, 설치가 끝나면 **지금 활성화**를 누르세요. 데스크톱 프로필은 앱이 관리하므로 `dsh plugin --profile desktop` 명령은 거부됩니다.
 
 ```text
 https://github.com/Burntgogi/dsh-mistral-search#v0.1.1
@@ -119,12 +119,13 @@ Windows 11, Node.js 24, DeepSeek Harness 0.2.2-rc.1에서 시험했습니다.
 
 | 항목 | 방법 |
 | --- | --- |
-| 태그를 지정한 Git 설치, 번들 등록, 제거 | 로컬 저장소 주소, 격리 환경, 가짜 API |
-| 키가 없을 때 도구 숨김, 재시도, 취소 | 같은 환경과 Harness 통합 시험 |
+| `github:`, HTTPS, Release `.tgz` 주소로 설치, 번들 등록, 제거 | 공개 저장소, 웹 프로필, 격리 환경 |
+| 데스크톱판 **플러그인 추가**로 설치, 활성화, 실행 중 표시 | 공개 저장소, 격리 환경, 키 없음 |
+| 키가 없을 때 도구 숨김, 재시도, 취소 | `github:` 설치본, 격리 환경, 가짜 API와 Harness 통합 시험 |
 | 실제 검색, 차단 안내, `web_fetch` | Vibe 키, 웹판 |
 | 실제 검색, 차단 안내 | Vibe 키, 데스크톱판 |
 
-실제 검색은 런타임 폴더에 넣은 복사본으로 시험했습니다. `github:` 주소 설치와 데스크톱판 **플러그인 추가** 설치, Vibe 키가 아닌 키, macOS와 Linux는 시험하지 않았습니다.
+실제 검색은 런타임 폴더에 넣은 복사본으로 시험했습니다. 공개 저장소에서 설치한 패키지로 실제 Mistral 검색을 하지는 않았습니다. Vibe 키가 아닌 키, macOS와 Linux도 시험하지 않았습니다.
 
 코드는 `lib/search.js`와 `lib/index.js`에 있고, `npm test`는 설치 없이 오프라인으로 돕니다. 문제는 [이슈](https://github.com/Burntgogi/dsh-mistral-search/issues)로 알려 주세요.
 

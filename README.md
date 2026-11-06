@@ -55,7 +55,7 @@ Restart the web server.
 
 ### Desktop
 
-In the app, open **Plugins → Add plugin** and enter the address below. The app manages the desktop profile, so `dsh plugin --profile desktop` is refused.
+In the app, open **Plugins → Add plugin** and enter the address below. When the install finishes, press **Enable now**. The app manages the desktop profile, so `dsh plugin --profile desktop` is refused.
 
 ```text
 https://github.com/Burntgogi/dsh-mistral-search#v0.1.1
@@ -119,12 +119,13 @@ Tests ran on Windows 11, Node.js 24 and DeepSeek Harness 0.2.2-rc.1.
 
 | Item | Method |
 | --- | --- |
-| Git install with a tag, bundle registration, removal | Local repository address, isolated home, fake API |
-| Hiding the tool without a key, retry, cancel | Same setup, plus a Harness integration test |
+| Install from `github:`, HTTPS and Release `.tgz` addresses, bundle registration, removal | Public repository, web profile, isolated home |
+| Install from the desktop **Add plugin** screen, enabling, Running status | Public repository, isolated home, no key |
+| Hiding the tool without a key, retry, cancel | `github:` install, isolated home, fake API, plus a Harness integration test |
 | Real search, block notice, `web_fetch` | Vibe key, web |
 | Real search, block notice | Vibe key, desktop |
 
-Real searches used a copy placed in the runtime folder. Install from a `github:` address, install from the desktop **Add plugin** screen, keys other than a Vibe key, macOS and Linux were not tested.
+Real searches used a copy placed in the runtime folder. No real Mistral search has run on a package installed from the public repository. Keys other than a Vibe key, macOS and Linux were not tested.
 
 The code is in `lib/search.js` and `lib/index.js`. `npm test` runs offline and needs no install. Report problems in [Issues](https://github.com/Burntgogi/dsh-mistral-search/issues).
 
