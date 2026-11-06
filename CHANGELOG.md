@@ -1,14 +1,17 @@
 # Changelog
 
-## 0.1.1 (unreleased)
+## 0.1.1
+
+First public version.
 
 - Checks every search execution failure so an earlier failure cannot hide a later safety-filter block
 - Keeps successful results with an incomplete-results warning when another search execution fails
 - Limits each attempt to 12 seconds, keeping two attempts and the longest retry wait within the Harness's default 30-second tool budget
+- Rewrites the README around a diagram of how a search runs
 
 ## 0.1.0
 
-First public version, for DeepSeek Harness 0.2.2-rc.1.
+First version, for DeepSeek Harness 0.2.2-rc.1. Not published on its own.
 
 - `web_search` through Mistral's built-in web search tool
 - Hides `web_search` when no key is stored
