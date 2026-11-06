@@ -1,0 +1,50 @@
+{
+  "name": "dsh-mistral-search",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "lib/index.js",
+  "description": "Web search for DeepSeek Harness through Mistral's built-in web_search tool, using a Mistral Vibe plan key or API key.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Burntgogi/dsh-mistral-search.git"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "dsh",
+    "deepseek-harness",
+    "mistral",
+    "web-search"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "dsh": "0.2.2-rc.1"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-web": "0.2.2-rc.1"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "~3.19.0"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "locale",
+    "cordis.patch.yml",
+    "README.md",
+    "README.ko.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test --test-concurrency=2 \"test/*.test.mjs\""
+  }
+}

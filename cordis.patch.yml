@@ -1,0 +1,9 @@
+# A patch row replaces the targeted row's whole config, so the web row restates
+# fetchProvider. Dropping it can make web_fetch ambiguous.
+- insert:
+    - id: dsh-mistral-search
+      name: dsh-mistral-search
+- id: web
+  config:
+    searchProvider: dsh-mistral-search
+    fetchProvider: http

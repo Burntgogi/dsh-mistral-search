@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Mistral 웹 검색",
+    "description": "Mistral Vibe 플랜 키나 API 키로 Mistral 웹 검색 도구를 호출해 Harness 웹 검색을 제공합니다."
+  }
+}
