@@ -87,6 +87,7 @@ test("an unreadable result is an error, not an empty list", async () => {
     [execution("not json"), message],
     [{ type: "tool.execution", name: "web_search", info: {} }],
     [execution({ a: { title: "no url" } })],
+    [execution({ a: "unexpected result format" })],
   ];
   for (const outputs of shapes) {
     const { provider: p } = provider([ok(outputs)]);
@@ -121,6 +122,11 @@ test("falls back to citation chunks when raw results are unreadable", () => {
   assert.deepEqual(sources, [{ url: "https://c.example/", title: "c" }]);
 });
 
+test("accepts results that arrive as an object rather than a JSON string", () => {
+  const sources = parseOutputs([{ type: "tool.execution", name: "web_search", info: { result: { a: item("https://a.example/", 0) } } }]);
+  assert.equal(sources[0].url, "https://a.example/");
+});
+
 test("drops unsafe URLs and repairs broken text", () => {
   const sources = parseOutputs([execution({
     a: item("javascript:alert(1)", 0),
@@ -145,6 +151,13 @@ test("does not wait out a long Retry-After", async () => {
   await rejectsWith(p.search({ query: "q" }), "WEB_PROVIDER_ERROR", /HTTP 429.*slow down/);
   assert.equal(calls.length, 1);
   assert.deepEqual(waits, []);
+});
+
+test("applies the Retry-After limit to an HTTP date", async () => {
+  const later = new Date(Date.now() + 3_600_000).toUTCString();
+  const { provider: p, calls } = provider([fail(429, {}, { "retry-after": later })]);
+  await rejectsWith(p.search({ query: "q" }), "WEB_PROVIDER_ERROR", /HTTP 429/);
+  assert.equal(calls.length, 1);
 });
 
 test("stops after two attempts", async () => {
@@ -177,6 +190,12 @@ test("does not retry a rejected key or a bad request", async () => {
 test("masks token-like text echoed in an error body", async () => {
   const { provider: p } = provider([fail(400, { message: "bad key abcdefghijklmnopqrstuvwxyz0123456789" })]);
   await assert.rejects(p.search({ query: "q" }), error => !error.message.includes("abcdefghijklmnop") && error.message.includes("[redacted]"));
+});
+
+test("masks a token that would straddle the length cut", async () => {
+  const token = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const { provider: p } = provider([fail(400, { message: `${"x ".repeat(85)}${token}` })]);
+  await assert.rejects(p.search({ query: "q" }), error => !error.message.includes(token.slice(0, 20)));
 });
 
 test("reports a missing key before any request", async () => {
@@ -216,6 +235,49 @@ test("cancellation stops at once, before and during a request, without retry", a
   });
   await rejectsWith(running.search({ query: "q" }, during.signal), "WEB_ABORTED");
   assert.equal(requests, 1);
+});
+
+test("cancellation ends a credential lookup that never settles", async () => {
+  const controller = new AbortController();
+  const stuck = createSearchProvider({
+    WebError,
+    credentials: { configured: async () => true, value: () => new Promise(() => {}) },
+    options: () => DEFAULTS,
+    fetchImpl: () => assert.fail("no request expected"),
+  });
+  const search = stuck.search({ query: "q" }, controller.signal);
+  controller.abort();
+  await rejectsWith(search, "WEB_ABORTED");
+});
+
+test("cancellation during backoff ends the wait, even when it came first", async () => {
+  const controller = new AbortController();
+  const running = createSearchProvider({
+    WebError,
+    credentials: { configured: async () => true, value: async () => KEY },
+    options: () => DEFAULTS,
+    fetchImpl: async () => {
+      queueMicrotask(() => controller.abort());
+      return fail(503);
+    },
+  });
+  const started = Date.now();
+  await rejectsWith(running.search({ query: "q" }, controller.signal), "WEB_ABORTED");
+  assert.ok(Date.now() - started < 500);
+});
+
+test("cancellation wins over a rejected key", async () => {
+  const controller = new AbortController();
+  const running = createSearchProvider({
+    WebError,
+    credentials: { configured: async () => true, value: async () => KEY },
+    options: () => DEFAULTS,
+    fetchImpl: async () => {
+      controller.abort();
+      return fail(401);
+    },
+  });
+  await rejectsWith(running.search({ query: "q" }, controller.signal), "WEB_ABORTED");
 });
 
 test("uses the configured model and base URL", async () => {
