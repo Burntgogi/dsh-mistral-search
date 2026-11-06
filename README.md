@@ -1,6 +1,6 @@
 # dsh-mistral-search
 
-Gives [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `web_search` through Mistral's built-in web search tool, with a Mistral Vibe plan key or a Mistral API key. No DeepSeek key and no Vibe program are needed.
+Gives [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) `web_search` through Mistral's built-in web search tool, using your Mistral key. No DeepSeek key and no Vibe program are needed.
 
 This is a community plugin, not an official DeepSeek or Mistral project. Mistral's web search is not free: see [Cost](#cost).
 
@@ -9,7 +9,7 @@ This is a community plugin, not an official DeepSeek or Mistral project. Mistral
 ## Requirements
 
 - DeepSeek Harness 0.2.2-rc.1. The version is pinned, so a new Harness version needs a new plugin release.
-- A Mistral key stored under the name `MISTRAL_VIBE_API_KEY`, or another name set through `apiKeyEnv`.
+- A Mistral key available as `MISTRAL_VIBE_API_KEY`, or under another name set through `apiKeyEnv`. Store it in the Harness credential store or set it as an environment variable before launch. Real searches were tested with a Vibe key only.
 
 ## Install
 
@@ -47,12 +47,12 @@ Set these in your profile's `cordis.patch.yml`. All are optional.
 | Setting | Meaning |
 |---|---|
 | `model` | The model that runs the search. It must accept built-in connectors. |
-| `apiKeyEnv` | The credential name that holds the key. Never the key itself. Use `MISTRAL_API_KEY` for a regular API key. |
+| `apiKeyEnv` | The credential name that holds the key. Never the key itself. |
 | `baseURL` | The Mistral API address. |
 
 ### Which models work
 
-Measured in November 2026 with a plan key. Mistral's model cards do not always match.
+Measured in November 2026 with a Vibe key. Mistral's model cards do not always match.
 
 | Model | Result |
 |---|---|
@@ -62,10 +62,9 @@ Measured in November 2026 with a plan key. Mistral's model cards do not always m
 
 ## Cost
 
-Each query uses about 800 input tokens, 5,000 to 8,500 search result tokens and a few dozen output tokens.
+Mistral's web search is not free. Mistral states that API keys are not scoped to plans: every key uses your organization's Mistral plan and pay-as-you-go settings. Included monthly usage is shared across Studio, the API and Vibe Code and is used first. After that, usage draws on prepaid credits if pay-as-you-go is on, and can stop until the next billing period if it is off. See [API keys](https://docs.mistral.ai/admin/identity-access/api-keys) and [Subscriptions](https://docs.mistral.ai/admin/billing-usage/subscriptions). The plugin cannot read these settings, so check them yourself.
 
-- **Plan key:** usage counts against your Vibe plan. Mistral publishes no exact conversion. Measurements came to roughly 0.02 percentage points of a plan per query, which is a rough figure for one account. Check your pay-as-you-go setting yourself, because the plugin cannot read it.
-- **API key:** billed per token and possibly per search call. See [Mistral's pricing](https://docs.mistral.ai/inference/pricing).
+In a small sample from November 2026, a query usually took about 800 input tokens, 5,000 to 8,500 search result tokens and 20 to 70 output tokens. One long query took 522 output tokens because the model wrote prose it was told not to write. A retry sends a second request. Mistral publishes no conversion from tokens to plan usage, and this plugin's share of plan usage has not been measured in isolation.
 
 One `web_search` call can hold up to 4 queries, and each query counts separately.
 
@@ -74,16 +73,17 @@ One `web_search` call can hold up to 4 queries, and each query counts separately
 - A rate limit, server error, network failure, or a turn where the model skipped the tool is retried once. A wait longer than 5 seconds is not retried.
 - Each attempt is limited to 20 seconds. Cancelling stops immediately.
 - A rejected key or a bad request fails at once with Mistral's reason.
-- Mistral's safety filter can block a search with `prompt injection pattern detected`. The plugin tells the model the search was blocked, not that the web has no results, and other queries in the same call still run. See [Limits](#limits).
+- Mistral can report that a search's tool response was blocked, with the reason `prompt injection pattern detected`. The plugin tells the model the search was blocked, not that the web has no results, and other queries in the same call still run. See [Limits](#limits).
+- If Mistral's model searched with different terms than the ones requested, the results are kept and the model is told which terms were used. In the sample measured, the terms always matched.
 - An empty result reads as "no results". A response the plugin cannot understand reads as an error, so a format change at Mistral is not mistaken for an empty search.
 - The raw results come from `info.result`, a field Mistral does not document. If it goes away, the plugin falls back to citation chunks, and otherwise reports the error above.
 
 ## Limits
 
-- The plugin pins itself as `searchProvider`. If you disable it but keep the pin, searches fail with `WEB_PROVIDER_CONFIGURED_MISSING`. Removing the plugin removes the pin.
+- The plugin pins itself as `searchProvider`. If you disable it but keep the pin, searches fail with `WEB_PROVIDER_CONFIGURED_MISSING`. Removing the plugin removes the pin it added. A `searchProvider` you saved yourself stays and must be cleared by hand.
 - The Harness web search settings switch overwrites `searchProvider`. Set it back to `dsh-mistral-search` if you use the switch.
 - This plugin has only one engine and no automatic fallback.
-- Mistral's filter inspects the search results, and it also blocks legitimate topics. In November 2026, `prompt injection attack examples`, `OWASP LLM01 prompt injection mitigation` and `ignore previous instructions meme origin` were all blocked, so this plugin is a poor fit for security research on that subject. Ordinary searches in the same tests went through. How often other searches are blocked was not measured.
+- Mistral's block also hits legitimate topics. In November 2026, `prompt injection attack examples`, `OWASP LLM01 prompt injection mitigation` and `ignore previous instructions meme origin` were all blocked, so this plugin is a poor fit for research on that subject. Other test searches went through, including `DAN jailbreak prompt ChatGPT`. Mistral does not say what triggers the block, and how often other searches are blocked was not measured.
 
 ## Remove
 

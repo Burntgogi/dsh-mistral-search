@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Mistral Web Search",
-    "description": "Provide Harness web search through Mistral's web search tool, using a Mistral Vibe plan key or API key."
+    "description": "Provide Harness web search through Mistral's web search tool, using your Mistral key."
   }
 }

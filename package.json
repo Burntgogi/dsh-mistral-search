@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "main": "lib/index.js",
-  "description": "Web search for DeepSeek Harness through Mistral's built-in web_search tool, using a Mistral Vibe plan key or API key.",
+  "description": "Web search for DeepSeek Harness through Mistral's built-in web_search tool, using your Mistral key.",
   "license": "MIT",
   "repository": {
     "type": "git",
