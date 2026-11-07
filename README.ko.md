@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="#업데이트와-제거"><img src="https://img.shields.io/badge/DSH-0.2.2--rc.1-1f6feb" alt="지원 버전: DSH 0.2.2-rc.1"></a>
+  <a href="#업데이트와-제거"><img src="https://img.shields.io/badge/DSH-verified%200.2.2--rc.1-1f6feb" alt="확인한 버전: DSH 0.2.2-rc.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="라이선스: MIT"></a>
 </p>
 
@@ -48,7 +48,7 @@ Mistral 키를 `MISTRAL_VIBE_API_KEY`라는 이름으로 Harness 자격 증명 �
 ### 웹판
 
 ```bash
-dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.1
+dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.2
 ```
 
 웹판을 다시 시작하세요.
@@ -58,7 +58,7 @@ dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.1
 앱의 **플러그인 → 플러그인 추가**에 아래 주소를 넣고, 설치가 끝나면 **지금 활성화**를 누르세요. 데스크톱 프로필은 앱이 관리하므로 `dsh plugin --profile desktop` 명령은 거부됩니다.
 
 ```text
-https://github.com/Burntgogi/dsh-mistral-search#v0.1.1
+https://github.com/Burntgogi/dsh-mistral-search#v0.1.2
 ```
 
 ## 비용
@@ -101,7 +101,7 @@ Mistral 웹 검색은 무료가 아닙니다. Mistral 문서에 따르면 모든
 
 ## 업데이트와 제거
 
-DeepSeek Harness 0.2.2-rc.1만 지원합니다. 다른 버전에서는 설치가 거부됩니다. Harness를 새 버전으로 올리면 그 버전을 지원하는 릴리스가 필요합니다.
+DeepSeek Harness 0.2.2-rc.1 이상에 설치됩니다. 확인한 버전은 0.2.2-rc.1입니다. 이후 버전은 이 문서에 적히기 전까지 확인되지 않았으며, 동작하지 않을 수 있습니다.
 
 업데이트하려면 저장소 주소의 태그를 새 릴리스 태그로 바꿔 다시 추가하세요.
 

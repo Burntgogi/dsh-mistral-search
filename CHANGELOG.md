@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Installs on DeepSeek Harness 0.2.2-rc.1 and later. Only 0.2.2-rc.1 is verified
+
 ## 0.1.1
 
 First public version.

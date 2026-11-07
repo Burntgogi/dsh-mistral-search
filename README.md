@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="#update-and-remove"><img src="https://img.shields.io/badge/DSH-0.2.2--rc.1-1f6feb" alt="Supported version: DSH 0.2.2-rc.1"></a>
+  <a href="#update-and-remove"><img src="https://img.shields.io/badge/DSH-verified%200.2.2--rc.1-1f6feb" alt="Verified on DSH 0.2.2-rc.1"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License: MIT"></a>
 </p>
 
@@ -48,7 +48,7 @@ Store your Mistral key as `MISTRAL_VIBE_API_KEY` in the Harness credential store
 ### Web
 
 ```bash
-dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.1
+dsh plugin --profile web add github:Burntgogi/dsh-mistral-search#v0.1.2
 ```
 
 Restart the web server.
@@ -58,7 +58,7 @@ Restart the web server.
 In the app, open **Plugins → Add plugin** and enter the address below. When the install finishes, press **Enable now**. The app manages the desktop profile, so `dsh plugin --profile desktop` is refused.
 
 ```text
-https://github.com/Burntgogi/dsh-mistral-search#v0.1.1
+https://github.com/Burntgogi/dsh-mistral-search#v0.1.2
 ```
 
 ## Cost
@@ -101,7 +101,7 @@ The plugin makes at most two attempts, each limited to 12 seconds. The wait betw
 
 ## Update and remove
 
-Only DeepSeek Harness 0.2.2-rc.1 is supported. Other versions refuse the install. If you move the Harness to a new version, you need a release that supports it.
+The plugin installs on DeepSeek Harness 0.2.2-rc.1 and later. Verified on 0.2.2-rc.1. A later version is not verified until this README lists it, and the plugin can fail on it.
 
 To update, add the plugin again with the new release tag in the address.
 

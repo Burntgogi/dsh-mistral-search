@@ -1,6 +1,6 @@
 {
   "name": "dsh-mistral-search",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "lib/index.js",
   "description": "Web search for DeepSeek Harness through Mistral's built-in web_search tool, using your Mistral key.",
@@ -22,10 +22,10 @@
     }
   },
   "engines": {
-    "dsh": "0.2.2-rc.1"
+    "dsh": ">=0.2.2-rc.1"
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-web": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-web": ">=0.2.2-rc.1"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "~3.19.0"
